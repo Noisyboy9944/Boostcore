@@ -1,0 +1,633 @@
+/* ════════════════════════════════════════════════
+   BOOSTCORE - Haltech / MoTeC Style Motorsport Dash
+   ════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+/* ── Design Tokens ─────────────────────────────── */
+:root {
+    --bg: #080a0d;
+    --surface: #0d1117;
+    --surface-2: #111620;
+    --border: #1e2736;
+    --border-bright: #2a3548;
+
+    /* Motorsport accent colors */
+    --green: #00d084;
+    --green-glow: rgba(0, 208, 132, 0.35);
+    --yellow: #f0c000;
+    --yellow-glow: rgba(240, 192, 0, 0.35);
+    --red: #ff2244;
+    --red-glow: rgba(255, 34, 68, 0.4);
+    --blue: #0096ff;
+    --blue-glow: rgba(0, 150, 255, 0.35);
+    --orange: #ff6a00;
+    --purple: #a855f7;
+
+    --text-primary: #e8edf5;
+    --text-muted: #4a5568;
+    --text-dim: #2d3748;
+
+    /* Shift light colors */
+    --sl-green: #00ff6a;
+    --sl-yellow: #ffe500;
+    --sl-red: #ff1a3a;
+
+    --font-display: 'Orbitron', monospace;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-ui: 'Inter', sans-serif;
+}
+
+/* ── Reset ──────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ── Body / App Shell ───────────────────────────── */
+body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    /* Subtle scan-line texture */
+    background-image:
+        repeating-linear-gradient(0deg,
+            transparent,
+            transparent 2px,
+            rgba(255, 255, 255, 0.012) 2px,
+            rgba(255, 255, 255, 0.012) 4px),
+        radial-gradient(ellipse at 50% 0%, rgba(0, 150, 255, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 100%, rgba(255, 34, 68, 0.04) 0%, transparent 60%);
+}
+
+#app {
+    width: 100%;
+    max-width: 520px;
+    height: 100vh;
+    max-height: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+}
+
+/* ════════════════════════════════════════════════
+   SHIFT LIGHT STRIP
+   ════════════════════════════════════════════════ */
+.shift-lights {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 14px;
+    height: 52px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.shift-segment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.shift-led {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    transition: background 0.05s, box-shadow 0.05s;
+    position: relative;
+    overflow: hidden;
+}
+
+/* inner glare */
+.shift-led::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 8px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* LED states */
+.shift-led.green {
+    background: var(--sl-green);
+    box-shadow: 0 0 10px var(--sl-green), 0 0 20px rgba(0, 255, 106, 0.5);
+    border-color: var(--sl-green);
+}
+
+.shift-led.yellow {
+    background: var(--sl-yellow);
+    box-shadow: 0 0 10px var(--sl-yellow), 0 0 20px rgba(255, 229, 0, 0.5);
+    border-color: var(--sl-yellow);
+}
+
+.shift-led.red {
+    background: var(--sl-red);
+    box-shadow: 0 0 10px var(--sl-red), 0 0 20px rgba(255, 26, 58, 0.5);
+    border-color: var(--sl-red);
+}
+
+.shift-led.flash {
+    animation: led-flash 0.12s linear infinite;
+}
+
+@keyframes led-flash {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
+}
+
+.center-logo {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    gap: 2px;
+}
+
+.logo-accent {
+    color: var(--blue);
+}
+
+/* ════════════════════════════════════════════════
+   RPM BAR
+   ════════════════════════════════════════════════ */
+.rpm-bar-section {
+    padding: 8px 14px 4px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.rpm-bar-track {
+    width: 100%;
+    height: 14px;
+    background: #0a0d12;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.rpm-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 2px;
+    background: linear-gradient(90deg,
+            var(--green) 0%,
+            var(--green) 55%,
+            var(--yellow) 70%,
+            var(--red) 88%,
+            #ff005e 100%);
+    transition: width 0.05s linear;
+    box-shadow: 0 0 6px rgba(0, 208, 132, 0.5);
+    position: relative;
+}
+
+.rpm-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 4px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.6);
+    filter: blur(1px);
+}
+
+.rpm-seg-dividers {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    pointer-events: none;
+}
+
+.rpm-seg-dividers span {
+    flex: 1;
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.rpm-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0 2px;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+/* ════════════════════════════════════════════════
+   MAIN ROW
+   ════════════════════════════════════════════════ */
+.main-row {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 1fr;
+    gap: 0;
+    min-height: 0;
+    border-bottom: 1px solid var(--border);
+}
+
+/* ── LEFT / RIGHT COLUMNS ────────────────────── */
+.left-col,
+.right-col {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    gap: 0;
+}
+
+.left-col {
+    border-right: 1px solid var(--border);
+}
+
+.right-col {
+    border-left: 1px solid var(--border);
+}
+
+/* ── Arc Gauge Wrapper ───────────────────────── */
+.arc-gauge-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    position: relative;
+}
+
+.left-col .arc-gauge-wrap:first-child,
+.right-col .arc-gauge-wrap:first-child {
+    border-bottom: 1px solid var(--border);
+}
+
+.arc-gauge-wrap canvas {
+    display: block;
+    width: 120px !important;
+    height: 120px !important;
+}
+
+.arc-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2px;
+    gap: 0;
+}
+
+.arc-val {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+    letter-spacing: 1px;
+}
+
+.arc-unit {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    margin-top: 1px;
+}
+
+.arc-name {
+    font-family: var(--font-ui);
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 3px;
+}
+
+/* ── CENTER COLUMN ───────────────────────────── */
+.center-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 12px 8px;
+    background: var(--bg);
+    position: relative;
+}
+
+/* subtle center panel inset shadow */
+.center-col::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+}
+
+/* Gear display */
+.gear-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 0 0 auto;
+}
+
+.gear-label {
+    font-family: var(--font-ui);
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 4px;
+}
+
+.gear-display {
+    font-family: var(--font-display);
+    font-size: 4.8rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--text-primary);
+    text-shadow: 0 0 30px rgba(0, 150, 255, 0.4), 0 0 60px rgba(0, 150, 255, 0.15);
+    letter-spacing: -2px;
+    transition: color 0.1s, text-shadow 0.1s;
+}
+
+/* Gear color states */
+.gear-display.gear-high {
+    color: var(--green);
+    text-shadow: 0 0 30px var(--green-glow), 0 0 60px rgba(0, 208, 132, 0.15);
+}
+
+.gear-display.gear-shift {
+    color: var(--red);
+    text-shadow: 0 0 30px var(--red-glow), 0 0 60px rgba(255, 34, 68, 0.2);
+    animation: gear-flash 0.15s linear infinite;
+}
+
+@keyframes gear-flash {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+/* RPM digital readout */
+.rpm-digital-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 4px;
+    background: #090c10;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 12px;
+    width: 100%;
+}
+
+.rpm-val-label {
+    font-family: var(--font-ui);
+    font-size: 0.5rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 3px;
+    margin-bottom: 1px;
+}
+
+.rpm-digital {
+    font-family: var(--font-display);
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px rgba(255, 34, 68, 0.5);
+    line-height: 1;
+}
+
+/* Speed */
+.speed-box {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin-top: 6px;
+}
+
+.speed-val {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+    letter-spacing: 2px;
+}
+
+.speed-unit {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    padding-bottom: 4px;
+}
+
+/* ════════════════════════════════════════════════
+   BOTTOM DATA TILES
+   ════════════════════════════════════════════════ */
+.data-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 7px 8px 6px;
+    gap: 4px;
+    border-right: 1px solid var(--border);
+}
+
+.tile:last-child {
+    border-right: none;
+}
+
+.tile-label {
+    font-family: var(--font-ui);
+    font-size: 0.52rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.tile-bar-wrap {
+    width: 100%;
+    height: 6px;
+    background: #090c10;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.tile-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--green), var(--yellow));
+    border-radius: 2px;
+    transition: width 0.1s linear, background 0.2s;
+    box-shadow: 0 0 4px rgba(0, 208, 132, 0.4);
+}
+
+.tile-bar.tile-bar-afr {
+    background: linear-gradient(90deg, var(--blue), var(--green));
+    box-shadow: 0 0 4px rgba(0, 150, 255, 0.4);
+}
+
+.tile-val {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+    line-height: 1;
+}
+
+.tile-unit {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-left: 2px;
+}
+
+/* ════════════════════════════════════════════════
+   STATUS BAR
+   ════════════════════════════════════════════════ */
+.status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    padding: 8px 14px;
+    height: 42px;
+    flex-shrink: 0;
+}
+
+.status-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+}
+
+.conn-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(0.85);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.15);
+    }
+}
+
+.status-center {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+}
+
+.status-right button {
+    background: transparent;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    font-family: var(--font-display);
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 5px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+}
+
+.status-right button:hover {
+    background: rgba(0, 150, 255, 0.12);
+    box-shadow: 0 0 12px rgba(0, 150, 255, 0.25);
+}
+
+/* ════════════════════════════════════════════════
+   ALARM STATES (applied via JS)
+   ════════════════════════════════════════════════ */
+.alarm-red .arc-val {
+    color: var(--red) !important;
+    text-shadow: 0 0 10px var(--red-glow);
+    animation: blink 0.5s linear infinite;
+}
+
+.alarm-yellow .arc-val {
+    color: var(--yellow) !important;
+    text-shadow: 0 0 10px var(--yellow-glow);
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BoostCore | Live Telemetry</title>
+    <meta name="description" content="Haltech/MoTeC-style live motorsport telemetry dashboard">
+    <meta name="theme-color" content="#0a0b0e">
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+
+        <!-- ─── SHIFT LIGHT STRIP (top, like Haltech iC-7 / MoTeC C125) ─── -->
+        <div id="shift-lights" class="shift-lights">
+            <div class="shift-segment left-group">
+                <div class="shift-led" id="sl0"></div>
+                <div class="shift-led" id="sl1"></div>
+                <div class="shift-led" id="sl2"></div>
+                <div class="shift-led" id="sl3"></div>
+            </div>
+            <div class="shift-segment center-logo">
+                <span>BOOST</span><span class="logo-accent">CORE</span>
+            </div>
+            <div class="shift-segment right-group">
+                <div class="shift-led" id="sl4"></div>
+                <div class="shift-led" id="sl5"></div>
+                <div class="shift-led" id="sl6"></div>
+                <div class="shift-led" id="sl7"></div>
+            </div>
+        </div>
+
+        <!-- ─── RPM BAR ─── -->
+        <div class="rpm-bar-section">
+            <div class="rpm-bar-track" id="rpm-bar-track">
+                <div id="rpm-bar-fill" class="rpm-bar-fill"></div>
+                <!-- segment dividers -->
+                <div class="rpm-seg-dividers" id="rpm-seg-dividers"></div>
+            </div>
+            <div class="rpm-bar-labels">
+                <span>0</span><span>1</span><span>2</span><span>3</span>
+                <span>4</span><span>5</span><span>6</span><span>7</span><span>8k</span>
+            </div>
+        </div>
+
+        <!-- ─── MAIN DATA ROW ─── -->
+        <div class="main-row">
+
+            <!-- LEFT COLUMN: Gauges -->
+            <div class="left-col">
+                <div class="arc-gauge-wrap">
+                    <canvas id="boostGauge" width="120" height="120"></canvas>
+                    <div class="arc-label">
+                        <span class="arc-val" id="boostValue">0.0</span>
+                        <span class="arc-unit">PSI</span>
+                        <span class="arc-name">BOOST</span>
+                    </div>
+                </div>
+                <div class="arc-gauge-wrap">
+                    <canvas id="oilGauge" width="120" height="120"></canvas>
+                    <div class="arc-label">
+                        <span class="arc-val" id="oilValue">0</span>
+                        <span class="arc-unit">PSI</span>
+                        <span class="arc-name">OIL P.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTER: Gear + RPM + Speed -->
+            <div class="center-col">
+                <div class="gear-box">
+                    <div class="gear-label">GEAR</div>
+                    <div class="gear-display" id="gearDisplay">N</div>
+                </div>
+                <div class="rpm-digital-box">
+                    <div class="rpm-val-label">RPM</div>
+                    <div class="rpm-digital" id="rpmValue">0000</div>
+                </div>
+                <div class="speed-box">
+                    <span class="speed-val" id="speedValue">000</span>
+                    <span class="speed-unit">KM/H</span>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Gauges -->
+            <div class="right-col">
+                <div class="arc-gauge-wrap">
+                    <canvas id="tempGauge" width="120" height="120"></canvas>
+                    <div class="arc-label">
+                        <span class="arc-val" id="tempValue">20</span>
+                        <span class="arc-unit">°C</span>
+                        <span class="arc-name">COOLANT</span>
+                    </div>
+                </div>
+                <div class="arc-gauge-wrap">
+                    <canvas id="fuelGauge" width="120" height="120"></canvas>
+                    <div class="arc-label">
+                        <span class="arc-val" id="fuelValue">100</span>
+                        <span class="arc-unit">%</span>
+                        <span class="arc-name">FUEL</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ─── BOTTOM DATA TILES ─── -->
+        <div class="data-tiles">
+            <div class="tile">
+                <span class="tile-label">THROTTLE</span>
+                <div class="tile-bar-wrap">
+                    <div class="tile-bar" id="throttleBar"></div>
+                </div>
+                <span class="tile-val" id="throttleValue">0<span class="tile-unit">%</span></span>
+            </div>
+            <div class="tile">
+                <span class="tile-label">ENGINE LOAD</span>
+                <div class="tile-bar-wrap">
+                    <div class="tile-bar" id="loadBar"></div>
+                </div>
+                <span class="tile-val" id="loadValue">0<span class="tile-unit">%</span></span>
+            </div>
+            <div class="tile">
+                <span class="tile-label">LAMBDA</span>
+                <div class="tile-bar-wrap">
+                    <div class="tile-bar tile-bar-afr" id="afrBar"></div>
+                </div>
+                <span class="tile-val" id="afrValue">1.00<span class="tile-unit">λ</span></span>
+            </div>
+        </div>
+
+        <!-- ─── STATUS BAR ─── -->
+        <div class="status-bar">
+            <div class="status-left">
+                <div class="conn-dot" id="conn-dot"></div>
+                <span id="conn-status">SIMULATOR ACTIVE</span>
+            </div>
+            <div class="status-center">
+                <span id="lap-time">LAP 00:00.000</span>
+            </div>
+            <div class="status-right">
+                <button id="connect-btn">CONNECT OBD</button>
+            </div>
+        </div>
+
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
